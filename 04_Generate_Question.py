@@ -73,7 +73,10 @@ if advanced_options == "yes":
     else:
         only_positive = True
     pick_mode = int_check("Pick your custom selection of numbers", low_num=0)
-mode_min_range = fix_number(-15, only_positive)
+if only_positive:
+    mode_min_range = 0
+else:
+    mode_min_range = fix_number(-15, only_positive)
 mode_max_range = fix_number(15, only_positive)
 
 questions_left = questions
@@ -94,6 +97,6 @@ while questions_left >= 1:
     elif ask_problem == "xxx":
         exit()
     else:
-        print("Wrong")
+        print("Answer given was wrong, correct answer was", answer)
     questions_left -= 1
     questions_answered += 1

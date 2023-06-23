@@ -59,7 +59,10 @@ def instructions():
           '\n Operations: Minus, Times and Divide:'
           '\n Negative questions'
           '\n Custom modes (Range (If you put 10 the range will be -10 to 10 with negative Questions))'
-          '\n- '
+          '\n- Advanced options off (modes will be 0 to (mode range) ig negatives are not allowed)'
+          '\n Easy: Plus and minus with a range of -10 to 10 ()'
+          '\n Medium: Plus,minus and times with a range of -20 to 20'
+          '\n Hard: Plus, minus, Times & divide with a range of -30 to 30'
           '\n\n')
     return ""
 
@@ -84,11 +87,6 @@ def choice_checker(question, chosen_valids=None, error=None):
 
 # Sets the number according to the set settings (if abs_on is true, abs makes negative a positive and positive to...
 # ... a positive and returns the number)
-def fix_number(number, abs_on):
-    if abs_on:
-        number = abs(number)
-
-    return number
 
 
 def generate_question_int(minimum, maximum):
@@ -121,13 +119,17 @@ if want_instructions == "yes":
     instructions()
 # The entire Game (Set round settings or quit) stops the Game if play_again is false
 questions_answered = 0
-
+negative_allowed = choice_checker("do you allow negative Questions? ")
 advanced_options = choice_checker("Would you like to go to "
                                   "advanced settings (No for default) ")
 # more flexable options
+if negative_allowed == "yes":
+    only_positive = False
+else:
+    only_positive = True
+
 if advanced_options == "yes":
     want_divide = choice_checker("Do you want divide in your questions? ")
-    negative_allowed = choice_checker("do you allow negative answers? ")
     want_minus = choice_checker("Do you want minus in your questions? ")
     want_times = choice_checker("Do you want times in your questions? ")
 
@@ -139,15 +141,9 @@ if advanced_options == "yes":
     if want_divide == "no":
         list.remove(operations, "÷")
 
-    if negative_allowed == "yes":
-        only_positive = False
-    else:
-        only_positive = True
-
     pick_mode = int_check("Pick your custom selection of numbers ", low_num=1)
-    mode_min_range = fix_number(-pick_mode, only_positive)
+    mode_min_range = -pick_mode
     mode_max_range = pick_mode
-
 else:
     # asks the mode so it sets the number range
     pick_mode = choice_checker("Choose easy / medium / hard (xxx to quit): ",
@@ -156,10 +152,15 @@ else:
         mode_min_range = -30
     elif pick_mode == "medium":
         mode_min_range = -20
+        list.remove(operations, "÷")
     else:
         mode_min_range = -10
-
+        list.remove(operations, "÷")
+        list.remove(operations, "x")
     mode_max_range = abs(mode_min_range)
+if negative_allowed == "no":
+    mode_min_range = 0
+
 # if asking how many questions is entered empty then infinite mode is turned on
 questions = int_check("How many questions do you want?"
                       " <Enter> for infinite ", 0, high_num=None, exit_code="")
@@ -171,7 +172,8 @@ if pick_mode == "xxx":  # exit code on pick mode
     exit("Pick mode exit code")
 
 questions_left = questions
-print("\n\n\n")
+print("\n")
+statement_generator("QUIZ START", "=")
 while questions_left >= 1:  # main game loop
     questions_answered += 1
     print()
@@ -218,19 +220,23 @@ while questions_left >= 1:  # main game loop
     ask_problem = int_check(f"{generate} = ", low_num=None, high_num=None, exit_code="xxx")
     reply = ""
     if ask_problem == answer:  # checks the question and the answer
-        print("Correct!")
+        print(f"\033[92mCorrect!\033[00m")
         reply = "Correct"
     elif ask_problem == "xxx":
         break
     else:
-        print("The answer given was wrong, the answer was:", answer)
+        print(f"\033[91mIncorrect\033[00m, the answer was:", answer)
         reply = "Wrong"
     has_played = True
-    list.append(round_stats, f"\nQ{questions_answered}: {generate} = {answer}"
-                             f" \nYour answer: {ask_problem} \t\t\t({reply})")
+    if reply == "Wrong":
+        list.append(round_stats, f"\033[91m\nQ{questions_answered}: {generate} = {answer}"
+                                 f" \nYour answer: {ask_problem} \t\t({reply})\033[00m")
+    else:
+        list.append(round_stats, f"\033[92m\nQ{questions_answered}: {generate} = {answer}"
+                                 f" \nYour answer: {ask_problem} \t\t({reply})\033[00m")
 
 if has_played:
-    want_stats = choice_checker("Do you want your statistics for this round? ")
+    want_stats = choice_checker("Would you like your round history? ")
     if want_stats == "yes":
         statement_generator("QUIZ HISTORY", ":")
         for history in round_stats:
