@@ -48,7 +48,7 @@ def int_check(question, low_num=None, high_num=None, exit_code=None):
             # if it only has a minimum then check if the response is lower than the minimum
             elif situation == "low only":
                 if response <= low_num:
-                    print(f"Please enter a number that is more than (or equal to) {low_num}")
+                    print(f"Please enter a number that is more than {low_num}")
                     continue
 
             return response
