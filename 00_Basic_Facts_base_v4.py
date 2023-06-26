@@ -219,7 +219,7 @@ while questions_left >= 1:  # main game loop
             chosen_number2 = generate_question_int(mode_min_range, mode_max_range)
             if chosen_number1 < chosen_number2:
                 # Re-arranges the numbers, so it the question is with the big number at the front
-                # (Example 3 ÷ 5 would be 5 ÷ 3
+                # (Example 3 ÷ 5 would be 5 ÷ 3)
                 hold_number = chosen_number1
                 chosen_number1 = chosen_number2
                 chosen_number2 = hold_number
