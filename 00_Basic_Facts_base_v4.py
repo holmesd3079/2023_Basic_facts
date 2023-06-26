@@ -1,8 +1,12 @@
 # ALL FUNCTIONS GO HERE
-# V3 - divide now only generates integer answerable questions
+
 import random
 
 
+# Decorates texts with the given Character(s) with a top bottom and a few sides
+# !!!!!!!!!!!!!!!!!
+# !!! | Test! | !!!
+# !!!!!!!!!!!!!!!!!
 def statement_generator(statement, decoration):
     middle = f'{decoration.upper() * 3} | {statement}! | {decoration.upper() * 3}'
     top_bottom = decoration.upper() * len(middle)
@@ -12,10 +16,13 @@ def statement_generator(statement, decoration):
     print(top_bottom)
 
 
+statement_generator("Test", "!")
+
+
 # int checker also includes minimum and maximum and exit code can be used for infinite mode
 def int_check(question, low_num=None, high_num=None, exit_code=None):
     situation = ""
-
+# Checks the higher and lower and if it exists or not, it sets the situation
     if low_num is not None and high_num is not None:
         situation = "both"
     elif low_num is not None and high_num is None:
@@ -58,7 +65,7 @@ def instructions():
           '\n- Advanced options allow'
           '\n Operations: Minus, Times and Divide:'
           '\n Negative questions'
-          '\n Custom modes (Range (If you put 10 the range will be -10 to 10 with negative Questions))'
+          '\n Custom modes (Range (If you put 10 the range will be -10 to 10 with negative Questions)) minimum is 5'
           '\n- Advanced options off (modes will be 0 to (mode range) ig negatives are not allowed)'
           '\n Easy: Plus and minus with a range of -10 to 10 ()'
           '\n Medium: Plus,minus and times with a range of -20 to 20'
@@ -119,7 +126,10 @@ if want_instructions == "yes":
     instructions()
 # The entire Game (Set round settings or quit) stops the Game if play_again is false
 questions_answered = 0
-negative_allowed = choice_checker("do you allow negative Questions? ")
+# Questions will not be -4 - 5 = -7 if this is set yes it will be 4 - 5 = -1
+negative_allowed = choice_checker("do you allow negative Questions? (Answers can be negatives if the question is a "
+                                  "minus)")
+# Go deeper in settings (with advanced options)
 advanced_options = choice_checker("Would you like to go to "
                                   "advanced settings (No for default) ")
 # more flexable options
@@ -127,13 +137,13 @@ if negative_allowed == "yes":
     only_positive = False
 else:
     only_positive = True
-
+# if the part where it asks if you want advanced settings is yes it will go into advanced settings part
 if advanced_options == "yes":
     want_divide = choice_checker("Do you want divide in your questions? ")
     want_minus = choice_checker("Do you want minus in your questions? ")
     want_times = choice_checker("Do you want times in your questions? ")
 
-    # Checks if they want to keep certain operations
+    # Checks if they want to keep certain operations if no then it removes it form the list
     if want_minus == "no":
         list.remove(operations, "-")
     if want_times == "no":
@@ -141,7 +151,7 @@ if advanced_options == "yes":
     if want_divide == "no":
         list.remove(operations, "÷")
 
-    pick_mode = int_check("Pick your custom selection of numbers ", low_num=1)
+    pick_mode = int_check("Pick your custom selection of numbers ", low_num=5)
     mode_min_range = -pick_mode
     mode_max_range = pick_mode
 else:
@@ -158,17 +168,19 @@ else:
         list.remove(operations, "÷")
         list.remove(operations, "x")
     mode_max_range = abs(mode_min_range)
+# negative questions no longer will be asked
 if negative_allowed == "no":
     mode_min_range = 0
 
 # if asking how many questions is entered empty then infinite mode is turned on
 questions = int_check("How many questions do you want?"
                       " <Enter> for infinite ", 0, high_num=None, exit_code="")
+# Infinite mode (xxx to quit game)
 if questions == "":
     infinite_mode = True
     questions = 10
 
-if pick_mode == "xxx":  # exit code on pick mode
+if pick_mode == "xxx":  # exit code on pick mode if you want to exit out
     exit("Pick mode exit code")
 
 questions_left = questions
@@ -186,6 +198,7 @@ while questions_left >= 1:  # main game loop
     # generates from the fixed mode numbers
     chosen_number1 = 0
     chosen_number2 = 0
+    # Question cant be 0 + 0 or for example 5 + 0 it cant have a 0
     while chosen_number1 == 0 or chosen_number2 == 0:  # If any of them generate 0 then regenerate
         chosen_number1 = generate_question_int(mode_min_range, mode_max_range)
         chosen_number2 = generate_question_int(mode_min_range, mode_max_range)
@@ -199,15 +212,18 @@ while questions_left >= 1:  # main game loop
     elif picked_operation == "-":
         answer = chosen_number1 - chosen_number2
     else:
-        #  divide
+        # Goes through a loop to make sure that you can answer an integer until it finds one (This is for divide)
         answer = 1.5
         while answer != round(answer, 0):  # Keep regenerating until the answer is an integer
             chosen_number1 = generate_question_int(mode_min_range, mode_max_range)
             chosen_number2 = generate_question_int(mode_min_range, mode_max_range)
             if chosen_number1 < chosen_number2:
+                # Re-arranges the numbers, so it the question is with the big number at the front
+                # (Example 3 ÷ 5 would be 5 ÷ 3
                 hold_number = chosen_number1
                 chosen_number1 = chosen_number2
                 chosen_number2 = hold_number
+                # answer pre-calculate
                 answer = chosen_number1 / chosen_number2
 
     if picked_operation == "÷":
@@ -220,6 +236,7 @@ while questions_left >= 1:  # main game loop
     ask_problem = int_check(f"{generate} = ", low_num=None, high_num=None, exit_code="xxx")
     reply = ""
     if ask_problem == answer:  # checks the question and the answer
+        # Numbers and the weird text is for colors for example this "Correct!" is Green
         print(f"\033[92mCorrect!\033[00m")
         reply = "Correct"
     elif ask_problem == "xxx":
@@ -229,15 +246,18 @@ while questions_left >= 1:  # main game loop
         reply = "Wrong"
     has_played = True
     if reply == "Wrong":
+        # Adds this to the list for round history at the end of the game (If wrong)
         list.append(round_stats, f"\033[91m\nQ{questions_answered}: {generate} = {answer}"
                                  f" \nYour answer: {ask_problem} \t\t({reply})\033[00m")
     else:
+        # Adds this to the list for round history at the end of the game (If Correct)
         list.append(round_stats, f"\033[92m\nQ{questions_answered}: {generate} = {answer}"
                                  f" \nYour answer: {ask_problem} \t\t({reply})\033[00m")
-
+# If the user exited at the start or on the first question the round history question will not ask the user
 if has_played:
     want_stats = choice_checker("Would you like your round history? ")
     if want_stats == "yes":
         statement_generator("QUIZ HISTORY", ":")
+        # Prints loop history
         for history in round_stats:
             print(history)
